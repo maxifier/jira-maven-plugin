@@ -69,9 +69,9 @@
       </dependency>
    </dependencies>
    <scm>
-      <connection>scm:git:git@github.com:gastaldi/jira-maven-plugin.git</connection>
-      <developerConnection>scm:git:git@github.com:gastaldi/jira-maven-plugin.git</developerConnection>
-      <url>http://github.com/gastaldi/jira-maven-plugin</url>
+      <connection>scm:git:git@github.com:maxifier/jira-maven-plugin.git</connection>
+      <developerConnection>scm:git:git@github.com:maxifier/jira-maven-plugin.git</developerConnection>
+      <url>http://github.com/maxifier/jira-maven-plugin</url>
    </scm>
    <build>
       <plugins>
