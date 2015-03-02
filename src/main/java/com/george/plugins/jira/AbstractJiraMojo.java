@@ -83,7 +83,7 @@ public abstract class AbstractJiraMojo extends AbstractMojo {
 	/**
 	 * Returns the stub needed to invoke the WebService
 	 * 
-	 * @return
+	 * @return JiraSoapService
 	 * @throws MalformedURLException
 	 * @throws ServiceException
 	 */
