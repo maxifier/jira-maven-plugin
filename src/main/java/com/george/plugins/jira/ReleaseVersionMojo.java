@@ -122,20 +122,30 @@ public class ReleaseVersionMojo extends AbstractJiraMojo {
 		if (versions != null) {
 			for (RemoteVersion remoteReleasedVersion : versions) {
 				if (releaseVersion.equalsIgnoreCase(remoteReleasedVersion
-						.getName()) && !remoteReleasedVersion.isReleased()) {
-					// Mark as released
-					remoteReleasedVersion.setReleased(true);
-					remoteReleasedVersion
-							.setReleaseDate(Calendar.getInstance());
-					jiraService.releaseVersion(loginToken, jiraProjectKey,
-							remoteReleasedVersion);
-					getLog().info(
-							"Version " + remoteReleasedVersion.getName()
-									+ " was released in JIRA.");
-					ret = remoteReleasedVersion;
+						.getName())) {
+					if (!remoteReleasedVersion.isReleased()) {
+						// Mark as released
+						remoteReleasedVersion.setReleased(true);
+						remoteReleasedVersion
+								.setReleaseDate(Calendar.getInstance());
+						jiraService.releaseVersion(loginToken, jiraProjectKey,
+								remoteReleasedVersion);
+						getLog().info(
+								"Version " + remoteReleasedVersion.getName()
+										+ " was released in JIRA.");
+						ret = remoteReleasedVersion;
+					} else {
+						getLog().warn(
+								"Version " + remoteReleasedVersion.getName()
+										+ " was released in JIRA earlier.");
+					}
 					break;
 				}
 			}
+		}
+		if (ret == null) {
+			getLog().warn(
+					"Version " + releaseVersion + " not found in JIRA.");
 		}
 		return ret;
 	}
