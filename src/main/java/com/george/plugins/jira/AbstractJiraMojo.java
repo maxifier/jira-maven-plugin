@@ -5,6 +5,7 @@ import java.net.URL;
 
 import javax.xml.rpc.ServiceException;
 
+import com.atlassian.jira.rpc.soap.client.RemoteVersion;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -208,6 +209,45 @@ public abstract class AbstractJiraMojo extends AbstractMojo {
 
 	public void setSettingsKey(String settingsKey) {
 		this.settingsKey = settingsKey;
+	}
+
+	/**
+	 * Check if version is already present on array
+	 *
+	 * @param versions
+	 * @param newDevVersion
+	 * @return
+	 */
+	protected boolean isVersionAlreadyPresent(RemoteVersion[] versions, String newDevVersion) {
+		boolean versionExists = false;
+		if (versions != null) {
+			// Creating new Version (if not already created)
+			for (RemoteVersion remoteVersion : versions) {
+				if (remoteVersion.getName().equalsIgnoreCase(newDevVersion)) {
+					versionExists = true;
+					break;
+				}
+			}
+		}
+		// existant
+		return versionExists;
+	}
+
+	protected void createVersion(JiraSoapService jiraService, String loginToken, RemoteVersion[] versions, String newDevVersion) throws java.rmi.RemoteException {
+		Log log;
+		log = getLog();
+		boolean versionExists = isVersionAlreadyPresent(versions, newDevVersion);
+		if (!versionExists) {
+			RemoteVersion newVersion = new RemoteVersion();
+			newVersion.setName(newDevVersion);
+			jiraService.addVersion(loginToken, jiraProjectKey, newVersion);
+			log.debug("JIRA: Version created in JIRA for project key "
+					+ jiraProjectKey + " : " + newDevVersion);
+		} else {
+			log.warn(String.format(
+					"JIRA: Version %s is already created in JIRA. Nothing to do.",
+					newDevVersion));
+		}
 	}
 
 }

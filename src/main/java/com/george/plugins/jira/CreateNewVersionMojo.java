@@ -53,8 +53,7 @@ public class CreateNewVersionMojo extends AbstractJiraMojo {
 			throws Exception {
 		Log log = getLog();
 		log.debug("Login Token returned: " + loginToken);
-		RemoteVersion[] versions = jiraService.getVersions(loginToken,
-				jiraProjectKey);
+		RemoteVersion[] versions = jiraService.getVersions(loginToken, jiraProjectKey);
 		String newDevVersion;
 		if (finalNameUsedForVersion) {
 			newDevVersion = finalName;
@@ -64,41 +63,7 @@ public class CreateNewVersionMojo extends AbstractJiraMojo {
 		// Removing -SNAPSHOT suffix for safety and sensible formatting
 		newDevVersion = StringUtils.capitaliseAllWords(newDevVersion.replace(
 				"-SNAPSHOT", "").replace("-", " "));
-		boolean versionExists = isVersionAlreadyPresent(versions, newDevVersion);
-		if (!versionExists) {
-			RemoteVersion newVersion = new RemoteVersion();
-			log.debug("New Development version in JIRA is: " + newDevVersion);
-			newVersion.setName(newDevVersion);
-			jiraService.addVersion(loginToken, jiraProjectKey, newVersion);
-			log.info("Version created in JIRA for project key "
-					+ jiraProjectKey + " : " + newDevVersion);
-		} else {
-			log.warn(String.format(
-					"Version %s is already created in JIRA. Nothing to do.",
-					newDevVersion));
-		}
+		createVersion(jiraService, loginToken, versions, newDevVersion);
 	}
 
-	/**
-	 * Check if version is already present on array
-	 * 
-	 * @param versions
-	 * @param newDevVersion
-	 * @return
-	 */
-	boolean isVersionAlreadyPresent(RemoteVersion[] versions,
-			String newDevVersion) {
-		boolean versionExists = false;
-		if (versions != null) {
-			// Creating new Version (if not already created)
-			for (RemoteVersion remoteVersion : versions) {
-				if (remoteVersion.getName().equalsIgnoreCase(newDevVersion)) {
-					versionExists = true;
-					break;
-				}
-			}
-		}
-		// existant
-		return versionExists;
-	}
 }

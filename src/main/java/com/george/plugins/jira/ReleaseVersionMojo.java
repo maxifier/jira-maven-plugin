@@ -46,20 +46,22 @@ public class ReleaseVersionMojo extends AbstractJiraMojo {
 	 */
 	Comparator<RemoteVersion> remoteVersionComparator = new RemoteVersionComparator();
 
+	private final CreateNewVersionMojo createNewVersionMojo = new CreateNewVersionMojo();
+
 	@Override
 	public void doExecute(JiraSoapService jiraService, String loginToken)
 			throws Exception {
 		Log log = getLog();
 		log.debug("Login Token returned: " + loginToken);
-		RemoteVersion[] versions = jiraService.getVersions(loginToken,
-				jiraProjectKey);
-		String thisReleaseVersion = (autoDiscoverLatestRelease)
-				? calculateLatestReleaseVersion(versions)
-				: releaseVersion;
+		RemoteVersion[] versions = jiraService.getVersions(loginToken, jiraProjectKey);
+		String thisReleaseVersion = (autoDiscoverLatestRelease) ? calculateLatestReleaseVersion(versions) : releaseVersion;
 		if (thisReleaseVersion != null) {
+			if (!isVersionAlreadyPresent(versions, thisReleaseVersion)) {
+				createVersion(jiraService, loginToken, versions, thisReleaseVersion);
+				versions = jiraService.getVersions(loginToken, jiraProjectKey);
+			}
 			log.info("Releasing Version " + this.releaseVersion);
-			markVersionAsReleased(jiraService, loginToken, versions,
-					thisReleaseVersion);
+			markVersionAsReleased(jiraService, loginToken, versions, thisReleaseVersion);
 		}
 	}
 
@@ -71,35 +73,11 @@ public class ReleaseVersionMojo extends AbstractJiraMojo {
 	 */
 	String calculateLatestReleaseVersion(RemoteVersion[] versions) {
 		Arrays.sort(versions, remoteVersionComparator);
-
 		for (RemoteVersion remoteVersion : versions) {
 			if (!remoteVersion.isReleased())
 				return remoteVersion.getName();
 		}
 		return null;
-	}
-
-	/**
-	 * Check if version is already present on array
-	 * 
-	 * @param versions
-	 * @param newDevVersion
-	 * @return
-	 */
-	boolean isVersionAlreadyPresent(RemoteVersion[] versions,
-			String newDevVersion) {
-		boolean versionExists = false;
-		if (versions != null) {
-			// Creating new Version (if not already created)
-			for (RemoteVersion remoteVersion : versions) {
-				if (remoteVersion.getName().equalsIgnoreCase(newDevVersion)) {
-					versionExists = true;
-					break;
-				}
-			}
-		}
-		// existant
-		return versionExists;
 	}
 
 	/**
@@ -135,9 +113,7 @@ public class ReleaseVersionMojo extends AbstractJiraMojo {
 										+ " was released in JIRA.");
 						ret = remoteReleasedVersion;
 					} else {
-						getLog().warn(
-								"Version " + remoteReleasedVersion.getName()
-										+ " was released in JIRA earlier.");
+						getLog().warn("Version " + remoteReleasedVersion.getName() + " was released in JIRA earlier.");
 					}
 					break;
 				}
