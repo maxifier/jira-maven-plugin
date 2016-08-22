@@ -4,7 +4,7 @@
     <artifactId>jira-maven-plugin</artifactId>
     <packaging>maven-plugin</packaging>
     <name>Maven JIRA Plugin</name>
-    <version>1.5-SNAPSHOT</version>
+    <version>1.5</version>
     <description>This project contains MOJOs to ease integration with JIRA</description>
     <prerequisites>
         <maven>3.0</maven>
@@ -79,7 +79,8 @@
         <connection>scm:git:git@github.com:maxifier/jira-maven-plugin.git</connection>
         <developerConnection>scm:git:git@github.com:maxifier/jira-maven-plugin.git</developerConnection>
         <url>http://github.com/maxifier/jira-maven-plugin</url>
-    </scm>
+      <tag>jira-maven-plugin-1.5</tag>
+  </scm>
     <build>
         <plugins>
             <plugin>
